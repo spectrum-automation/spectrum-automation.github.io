@@ -1,0 +1,1745 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.2",
+    "title": "Picking Zone API",
+    "description": "API for integrating the Booktopia WMS with the Booktopia WCS and pick to light system."
+  },
+  "servers": [
+    {
+      "description": "SwaggerHub API Auto Mocking",
+      "url": "https://virtserver.swaggerhub.com/Spectrum-Automation/BooktopiaPickingZoneAPI/0.0.1"
+    },
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "paths": {
+    "/state": {
+      "get": {
+        "summary": "Get picking zone state",
+        "description": "Returns the current state of the picking zone including the tote positions, the picking zone state and the last changed values.",
+        "operationId": "get_state",
+        "parameters": [],
+        "tags": [
+          "state"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Successfully obtained zone state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/state"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "zone_state": "ITEM_PICK",
+                      "active_request_id": "example-request-id",
+                      "stock_totes": [
+                        {
+                          "id": 11257,
+                          "position_id": 1
+                        },
+                        {
+                          "id": 13544,
+                          "position_id": 2
+                        }
+                      ],
+                      "order_totes": [
+                        {
+                          "id": 192,
+                          "position_id": 1
+                        },
+                        {
+                          "id": 3565,
+                          "position_id": 2
+                        },
+                        {
+                          "id": 4598,
+                          "position_id": 3
+                        }
+                      ],
+                      "stock_positions": {
+                        "1": {
+                          "id": 1,
+                          "state": "IN_PLACE",
+                          "tote_id": 11257
+                        },
+                        "2": {
+                          "id": 2,
+                          "state": "IN_PLACE",
+                          "tote_id": 13544
+                        },
+                        "3": {
+                          "id": 3,
+                          "state": "TRANSIT"
+                        },
+                        "4": {
+                          "id": 4,
+                          "state": "TRANSIT"
+                        }
+                      },
+                      "order_positions": {
+                        "1": {
+                          "id": 1,
+                          "state": "IN_PLACE",
+                          "tote_id": 192
+                        },
+                        "2": {
+                          "id": 2,
+                          "state": "IN_PLACE",
+                          "tote_id": 3565
+                        },
+                        "3": {
+                          "id": 3,
+                          "state": "IN_PLACE",
+                          "tote_id": 4598
+                        },
+                        "4": {
+                          "id": 4,
+                          "state": "EMPTY"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServer"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    },
+    "/state-reset": {
+      "post": {
+        "summary": "Reset the state of the picking zone",
+        "description": "Forces the zone to return to the idle state.",
+        "parameters": [],
+        "tags": [
+          "state"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Successfully reset state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/state"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "zone_state": "IDLE",
+                      "stock_totes": [
+                        {
+                          "id": 11257,
+                          "position_id": 1
+                        },
+                        {
+                          "id": 13544,
+                          "position_id": 2
+                        }
+                      ],
+                      "order_totes": [
+                        {
+                          "id": 192,
+                          "position_id": 1
+                        },
+                        {
+                          "id": 3565,
+                          "position_id": 2
+                        },
+                        {
+                          "id": 4598,
+                          "position_id": 3
+                        }
+                      ],
+                      "stock_positions": {
+                        "1": {
+                          "id": 1,
+                          "state": "IN_PLACE",
+                          "tote_id": 11257
+                        },
+                        "2": {
+                          "id": 2,
+                          "state": "IN_PLACE",
+                          "tote_id": 13544
+                        },
+                        "3": {
+                          "id": 3,
+                          "state": "TRANSIT"
+                        },
+                        "4": {
+                          "id": 4,
+                          "state": "TRANSIT"
+                        }
+                      },
+                      "order_positions": {
+                        "1": {
+                          "id": 1,
+                          "state": "IN_PLACE",
+                          "tote_id": 192
+                        },
+                        "2": {
+                          "id": 2,
+                          "state": "IN_PLACE",
+                          "tote_id": 3565
+                        },
+                        "3": {
+                          "id": 3,
+                          "state": "IN_PLACE",
+                          "tote_id": 4598
+                        },
+                        "4": {
+                          "id": 4,
+                          "state": "EMPTY"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServer"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    },
+    "/item-pick": {
+      "post": {
+        "summary": "Request item pick from order tote",
+        "description": "Requests that the conveyors stop moving totes in the last reported tote positions.  Displays on the pick to light system the quantity of items to retrieve from the specified tote.\n\nThis transition is only available from states: IDLE, ITEM_PLACED\n",
+        "parameters": [],
+        "tags": [
+          "item"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/item_pick_request"
+              },
+              "example": {
+                "request_id": "pick-20201130T174701",
+                "tote_id": 12456,
+                "tote_section": "B",
+                "quantity": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Successfully started item pick",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/item_pick_response"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "request_id": "pick-20201130T174701",
+                      "tote_id": 12456,
+                      "quantity": 2,
+                      "success": true,
+                      "message": "Success",
+                      "state": {
+                        "zone_state": "ITEM_PICK",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error - Conflict with state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/item_pick_response"
+                },
+                "examples": {
+                  "tote-not-available": {
+                    "value": {
+                      "request_id": "pick-20201130T174701",
+                      "tote_id": 13546,
+                      "quantity": 2,
+                      "success": false,
+                      "message": "Requested tote not available",
+                      "state": {
+                        "zone_state": "IDLE",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "invalid-state": {
+                    "value": {
+                      "request_id": "pick-20201130T174701",
+                      "tote_id": 12456,
+                      "quantity": 2,
+                      "success": false,
+                      "message": "Invalid state",
+                      "state": {
+                        "zone_state": "TOTE_PUSH",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServer"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    },
+    "/item-place": {
+      "post": {
+        "summary": "Request item place into order tote",
+        "description": "Requests that the conveyors stop moving totes in the last reported tote positions.  Displays on the pick to light system the quantity of items to place into the specified tote.\n\nThis transition is only available from states: IDLE, ITEM_PICK, ITEM_PLACE, ITEM_PLACED\n",
+        "parameters": [],
+        "tags": [
+          "item"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/item_place_request"
+              },
+              "example": {
+                "request_id": "place-20201130T174701",
+                "tote_id": 12456,
+                "tote_section": "B",
+                "quantity": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Successfully started item place",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/item_place_response"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "request_id": "place-20201130T174701",
+                      "tote_id": 2456,
+                      "quantity": 2,
+                      "success": true,
+                      "message": "Success",
+                      "state": {
+                        "zone_state": "ITEM_PLACE",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error - Conflict with state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/item_pick_response"
+                },
+                "examples": {
+                  "tote-not-available": {
+                    "value": {
+                      "request_id": "place-20201130T174701",
+                      "tote_id": 3546,
+                      "quantity": 2,
+                      "success": false,
+                      "message": "Requested tote not available",
+                      "state": {
+                        "zone_state": "IDLE",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "invalid-state": {
+                    "value": {
+                      "request_id": "place-20201130T174701",
+                      "tote_id": 12456,
+                      "quantity": 2,
+                      "success": false,
+                      "message": "Invalid state",
+                      "state": {
+                        "zone_state": "TOTE_PUSH",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServer"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    },
+    "/item-placed-ack": {
+      "post": {
+        "summary": "Acknowledge an item placed state",
+        "description": "Acknowledges the ITEM_PLACED state and resets the zone back into IDLE mode. This method can be used to acknowledge that a tote confirm button has been pressed.\n\nThis transition is only available from states: ITEM_PLACED\n",
+        "tags": [
+          "item"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Successfully acknowledged item placed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/state"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "zone_state": "IDLE",
+                      "stock_totes": [
+                        {
+                          "id": 11257,
+                          "position_id": 1
+                        },
+                        {
+                          "id": 13544,
+                          "position_id": 2
+                        }
+                      ],
+                      "order_totes": [
+                        {
+                          "id": 192,
+                          "position_id": 1
+                        },
+                        {
+                          "id": 3565,
+                          "position_id": 2
+                        },
+                        {
+                          "id": 4598,
+                          "position_id": 3
+                        }
+                      ],
+                      "stock_positions": {
+                        "1": {
+                          "id": 1,
+                          "state": "IN_PLACE",
+                          "tote_id": 11257
+                        },
+                        "2": {
+                          "id": 2,
+                          "state": "IN_PLACE",
+                          "tote_id": 13544
+                        },
+                        "3": {
+                          "id": 3,
+                          "state": "TRANSIT"
+                        },
+                        "4": {
+                          "id": 4,
+                          "state": "TRANSIT"
+                        }
+                      },
+                      "order_positions": {
+                        "1": {
+                          "id": 1,
+                          "state": "IN_PLACE",
+                          "tote_id": 192
+                        },
+                        "2": {
+                          "id": 2,
+                          "state": "IN_PLACE",
+                          "tote_id": 3565
+                        },
+                        "3": {
+                          "id": 3,
+                          "state": "IN_PLACE",
+                          "tote_id": 4598
+                        },
+                        "4": {
+                          "id": 4,
+                          "state": "EMPTY"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error - Conflict with state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/item_pick_response"
+                },
+                "examples": {
+                  "invalid-state": {
+                    "value": {
+                      "request_id": "place-20201130T174701",
+                      "tote_id": 12456,
+                      "quantity": 2,
+                      "success": false,
+                      "message": "Invalid state",
+                      "state": {
+                        "zone_state": "TOTE_PUSH",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServer"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    },
+    "/tote-push": {
+      "post": {
+        "summary": "Request tote push",
+        "description": "Requests that the conveyors stop moving totes in the last reported tote positions.  Displays on the pick to light system totes that the operator needs to push back onto the conveyors.\n\nIf an order tote is pushed, any stock totes in the zone are marked as complete on the order tote. If a stock tote is pushed, any outstanding requests for the stock tote on the order totes in the  zone are marked as complete. To avoid race conditions, the stock_totes and order_totes should be provided containing the totes that were considered in the zone when the tote push request was  made. This can simply be the stock_totes and order_totes from the last status received.\n\nThis transition is only available from states: IDLE, ITEM_PLACED",
+        "parameters": [],
+        "tags": [
+          "tote"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/tote_push_request"
+              },
+              "example": {
+                "request_id": "push-20201130T174701",
+                "tote_id": 12456,
+                "stock_totes": [
+                  {
+                    "id": 12456
+                  },
+                  {
+                    "id": 13544
+                  }
+                ],
+                "order_totes": [
+                  {
+                    "id": 192
+                  },
+                  {
+                    "id": 3565
+                  },
+                  {
+                    "id": 4598
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Successfully started tote push",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tote_push_response"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "request_id": "push-20201130T174701",
+                      "tote_id": 2456,
+                      "quantity": 2,
+                      "success": true,
+                      "message": "Success",
+                      "state": {
+                        "zone_state": "TOTE_PUSH",
+                        "active_request_id": "push-20201130T174701",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error - Conflict with state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/item_pick_response"
+                },
+                "examples": {
+                  "tote-not-available": {
+                    "value": {
+                      "request_id": "place-20201130T174701",
+                      "tote_id": 3546,
+                      "quantity": 2,
+                      "success": false,
+                      "message": "Requested tote not available",
+                      "state": {
+                        "zone_state": "IDLE",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "invalid-state": {
+                    "value": {
+                      "request_id": "place-20201130T174701",
+                      "tote_id": 12456,
+                      "quantity": 2,
+                      "success": false,
+                      "message": "Invalid state",
+                      "state": {
+                        "zone_state": "TOTE_PUSH",
+                        "stock_totes": [
+                          {
+                            "id": 11257,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 13544,
+                            "position_id": 2
+                          }
+                        ],
+                        "order_totes": [
+                          {
+                            "id": 192,
+                            "position_id": 1
+                          },
+                          {
+                            "id": 3565,
+                            "position_id": 2
+                          },
+                          {
+                            "id": 4598,
+                            "position_id": 3
+                          }
+                        ],
+                        "stock_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 11257
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 13544
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "TRANSIT"
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "TRANSIT"
+                          }
+                        },
+                        "order_positions": {
+                          "1": {
+                            "id": 1,
+                            "state": "IN_PLACE",
+                            "tote_id": 192
+                          },
+                          "2": {
+                            "id": 2,
+                            "state": "IN_PLACE",
+                            "tote_id": 3565
+                          },
+                          "3": {
+                            "id": 3,
+                            "state": "IN_PLACE",
+                            "tote_id": 4598
+                          },
+                          "4": {
+                            "id": 4,
+                            "state": "EMPTY"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServer"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "InternalServer": {
+        "description": "Internal Server Error - Server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "examples": {
+              "example": {
+                "value": {
+                  "code": 500,
+                  "message": "Internal Server Error - Server error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "GatewayTimeout": {
+        "description": "Gateway Timeout - Status information from PLC unavailable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "examples": {
+              "example": {
+                "value": {
+                  "code": 504,
+                  "message": "Gateway Timeout - Status information from PLC unavailable"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "tote_section": {
+        "title": "tote_section",
+        "description": "A section in a tote.",
+        "type": "string",
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "tote": {
+        "title": "tote",
+        "description": "An order or stock tote.",
+        "type": "object",
+        "required": [
+          "id",
+          "position_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The unique tote identifier.",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 99999
+          },
+          "position_type": {
+            "type": "string",
+            "description": "The position of the tote on the conveyor.",
+            "enum": [
+              "STOCK",
+              "ORDER"
+            ]
+          },
+          "position_id": {
+            "type": "integer",
+            "description": "The position of the tote on the conveyor.",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 4
+          }
+        }
+      },
+      "tote_list": {
+        "title": "tote_list",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/tote"
+        }
+      },
+      "zone_state": {
+        "title": "zone_state",
+        "description": "The current state of the zone:\n* `IDLE` - Waiting for WMS request\n* `ITEM_PICK` - Item pick in progress\n* `ITEM_PLACE` - Item place in progress\n* `ITEM_PLACED` - Item placed\n* `TOTE_PUSH` - Tote push in progress\n",
+        "type": "string",
+        "enum": [
+          "IDLE",
+          "ITEM_PICK",
+          "ITEM_PLACE",
+          "ITEM_PLACED",
+          "TOTE_PUSH"
+        ]
+      },
+      "position_state": {
+        "title": "position_state",
+        "description": "The current state of the position:\n* `EMPTY` - Position is empty\n* `TRANSIT` - Tote is moving through position\n* `IN_PLACE` - Tote is in place\n",
+        "type": "string",
+        "enum": [
+          "EMPTY",
+          "TRANSIT",
+          "IN_PLACE"
+        ]
+      },
+      "position": {
+        "title": "position",
+        "type": "object",
+        "required": [
+          "id",
+          "state"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "state": {
+            "$ref": "#/components/schemas/position_state"
+          },
+          "tote_id": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 99999
+          }
+        }
+      },
+      "position_dict": {
+        "title": "position_dict",
+        "type": "object",
+        "properties": {
+          "1": {
+            "$ref": "#/components/schemas/position"
+          },
+          "2": {
+            "$ref": "#/components/schemas/position"
+          },
+          "3": {
+            "$ref": "#/components/schemas/position"
+          },
+          "4": {
+            "$ref": "#/components/schemas/position"
+          }
+        }
+      },
+      "state": {
+        "title": "state",
+        "type": "object",
+        "required": [
+          "zone_state",
+          "active_request",
+          "stock_totes",
+          "order_totes",
+          "stock_positions",
+          "order_positions"
+        ],
+        "properties": {
+          "zone_state": {
+            "$ref": "#/components/schemas/zone_state"
+          },
+          "active_request_id": {
+            "description": "The current request that is active in the zone, from the request_id of the last request received."
+          },
+          "stock_totes": {
+            "description": "The totes that are in the stock positions.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/tote_list"
+              }
+            ]
+          },
+          "order_totes": {
+            "description": "The totes that are in the order positions.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/tote_list"
+              }
+            ]
+          },
+          "stock_positions": {
+            "description": "The positions that are in the stock area.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/position_dict"
+              }
+            ]
+          },
+          "order_positions": {
+            "description": "The positions that are in the order area.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/position_dict"
+              }
+            ]
+          },
+          "changed": {
+            "description": "Notification if the state of the zone has changed. The change can consist of a change to zone_state, stock_totes or order_totes.",
+            "type": "boolean"
+          }
+        }
+      },
+      "item_pick_request": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "tote_id",
+          "tote_section",
+          "quantity"
+        ],
+        "properties": {
+          "request_id": {
+            "description": "An identifier for this request.",
+            "type": "string"
+          },
+          "tote_id": {
+            "description": "The stock tote to pick from.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999
+          },
+          "tote_section": {
+            "$ref": "#/components/schemas/tote_section"
+          },
+          "quantity": {
+            "description": "The number of items to display on the pick to light node.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          }
+        }
+      },
+      "item_pick_response": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "tote_id",
+          "quantity",
+          "success",
+          "message",
+          "state"
+        ],
+        "properties": {
+          "request_id": {
+            "description": "The identifier from the request.",
+            "type": "string"
+          },
+          "tote_id": {
+            "description": "The stock tote that picking was requested for.",
+            "type": "integer"
+          },
+          "tote_section": {
+            "$ref": "#/components/schemas/tote_section"
+          },
+          "quantity": {
+            "description": "The number of items to be displayed on the pick to light display.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "success": {
+            "description": "The item pick has been started successfully.",
+            "type": "boolean"
+          },
+          "message": {
+            "description": "Additional information about the request result.",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/state"
+          }
+        }
+      },
+      "item_place_request": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "tote_id",
+          "tote_section",
+          "quantity"
+        ],
+        "properties": {
+          "request_id": {
+            "description": "An identifier for this request.",
+            "type": "string"
+          },
+          "tote_id": {
+            "description": "The order tote to place into.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999
+          },
+          "tote_section": {
+            "$ref": "#/components/schemas/tote_section"
+          },
+          "quantity": {
+            "description": "The number of items to display on the pick to light node.",
+            "minimum": 1,
+            "maximum": 99
+          }
+        }
+      },
+      "item_place_response": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "tote_id",
+          "quantity",
+          "success",
+          "message",
+          "state"
+        ],
+        "properties": {
+          "request_id": {
+            "description": "The identifier from the request.",
+            "type": "string"
+          },
+          "tote_id": {
+            "description": "The order tote that placement was requested for.",
+            "type": "integer"
+          },
+          "tote_section": {
+            "$ref": "#/components/schemas/tote_section"
+          },
+          "quantity": {
+            "description": "The number of items to be displayed on the pick to light display.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "success": {
+            "description": "The item place has been started successfully.",
+            "type": "boolean"
+          },
+          "message": {
+            "description": "Additional information about the request result.",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/state"
+          }
+        }
+      },
+      "tote_push_request": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "tote_id"
+        ],
+        "properties": {
+          "request_id": {
+            "description": "An identifier for this request.",
+            "type": "string"
+          },
+          "tote_id": {
+            "description": "The tote to push.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999
+          },
+          "stock_totes": {
+            "description": "The stock totes that were evaluated as part of this tote push request.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "order_totes": {
+            "description": "The stock totes that were evaluated as part of this tote push request.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "tote_push_response": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "tote_id",
+          "success",
+          "message",
+          "state"
+        ],
+        "properties": {
+          "request_id": {
+            "description": "The identifier from the request.",
+            "type": "string"
+          },
+          "tote_id": {
+            "description": "The tote that is to be pushed.",
+            "type": "integer"
+          },
+          "success": {
+            "description": "The tote push has been started successfully.",
+            "type": "boolean"
+          },
+          "message": {
+            "description": "Additional information about the request result.",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/state"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
