@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "version": "0.0.2",
+    "version": "0.0.3",
     "title": "Picking Zone API",
     "description": "API for integrating the Booktopia WMS with the Booktopia WCS and pick to light system."
   },
@@ -37,6 +37,7 @@
                     "value": {
                       "zone_state": "ITEM_PICK",
                       "active_request_id": "example-request-id",
+                      "tote_combination_id": 9845,
                       "stock_totes": [
                         {
                           "id": 11257,
@@ -1000,7 +1001,7 @@
               },
               "example": {
                 "request_id": "push-20201130T174701",
-                "tote_id": 12456,
+                "tote_ids": [12456, 192],
                 "stock_totes": [
                   {
                     "id": 12456
@@ -1036,13 +1037,14 @@
                   "success": {
                     "value": {
                       "request_id": "push-20201130T174701",
-                      "tote_id": 2456,
+                      "tote_ids": [11257, 192],
                       "quantity": 2,
                       "success": true,
                       "message": "Success",
                       "state": {
                         "zone_state": "TOTE_PUSH",
                         "active_request_id": "push-20201130T174701",
+                        "tote_combination_id": 9845,
                         "stock_totes": [
                           {
                             "id": 11257,
@@ -1132,6 +1134,7 @@
                       "message": "Requested tote not available",
                       "state": {
                         "zone_state": "IDLE",
+                        "tote_combination_id": 9845,
                         "stock_totes": [
                           {
                             "id": 11257,
@@ -1209,6 +1212,7 @@
                       "message": "Invalid state",
                       "state": {
                         "zone_state": "TOTE_PUSH",
+                        "tote_combination_id": 9845,
                         "stock_totes": [
                           {
                             "id": 11257,
@@ -1453,6 +1457,7 @@
         "required": [
           "zone_state",
           "active_request",
+          "tote_combination_id",
           "stock_totes",
           "order_totes",
           "stock_positions",
@@ -1497,8 +1502,12 @@
               }
             ]
           },
-          "changed": {
-            "description": "Notification if the state of the zone has changed. The change can consist of a change to zone_state, stock_totes or order_totes.",
+          "tote_combination_id": {
+            "description": "An identifier for this combination of totes. If a different combination of totes are presented the identifier is incremented.",
+            "type": "integer"
+          },
+          "totes_changed": {
+            "description": "Notification if the state of the zone has changed. The change can consist of a change to stock_totes or order_totes.",
             "type": "boolean"
           }
         }
@@ -1655,11 +1664,14 @@
             "description": "An identifier for this request.",
             "type": "string"
           },
-          "tote_id": {
-            "description": "The tote to push.",
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 99999
+          "tote_ids": {
+            "type": "array",
+            "description": "The totes to push.",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 99999
+            }
           },
           "stock_totes": {
             "description": "The stock totes that were evaluated as part of this tote push request.",
@@ -1707,9 +1719,12 @@
             "description": "The identifier from the request.",
             "type": "string"
           },
-          "tote_id": {
+          "tote_ids": {
             "description": "The tote that is to be pushed.",
-            "type": "integer"
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
           },
           "success": {
             "description": "The tote push has been started successfully.",
